@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@import 'primeicons/primeicons.css';
+
+@theme {
+  --color-cream: oklch(0.97 0.0084 145.51);
+  --color-sage: oklch(0.78 0.0772 100.44);
+  --color-khaki: oklch(0.54 0.0464 35.32);
+  --color-haze: oklch(0.52 0.0847 348.57);
+  --font-poppins: Poppins, sans-serif;
+}
