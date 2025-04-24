@@ -12,14 +12,20 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['start-editing', 'cancel-editing', 'save-editing', 'delete-task'])
+const emit = defineEmits(['start-editing', 'cancel-editing', 'save-editing', 'delete-task', 'set-active-task'])
 
 const isEditing = ref(props.task.isEditing)
 const taskName = ref(props.task.name)
 const estPomodoros = ref(props.task.estPomodoros)
 const currentPomodoros = ref(props.task.currentPomodoros)
+const isActive = ref(props.task.isActive)  // Local state for active task
 const originalTask = ref({ ...props.task })
 const currentPomodorosError = ref('')
+
+watch(() => props.task.isActive, (newIsActive) => {
+  // Update local `isActive` state when prop changes
+  isActive.value = newIsActive
+})
 
 const startEdit = () => {
   originalTask.value = { ...props.task }
@@ -57,38 +63,33 @@ const deleteTask = () => {
   }
 }
 
-onMounted(() => {
-  isEditing.value = props.task.isEditing
-  taskName.value = props.task.name
-  estPomodoros.value = props.task.estPomodoros
-  currentPomodoros.value = props.task.currentPomodoros
-})
+const handleClick = () => {
+  emit('set-active-task', props.index)  // Emit the index when task is clicked
+}
 
-// Optional: Add a watch to provide real-time error feedback while editing
-watch(currentPomodoros, (newValue) => {
-  if (isEditing.value && parseInt(newValue) > parseInt(estPomodoros.value)) {
-    currentPomodorosError.value = 'Current cannot be greater than Estimated.'
-  } else {
-    currentPomodorosError.value = ''
-  }
-})
+watch(() => props.task, (newTask) => {
+  taskName.value = newTask.name
+  estPomodoros.value = newTask.estPomodoros
+  currentPomodoros.value = newTask.currentPomodoros
+  isActive.value = newTask.isActive
+}, { deep: true })
 
-watch(estPomodoros, (newValue) => {
-  // Also re-validate if estimated pomodoros are reduced below current
-  if (isEditing.value && parseInt(currentPomodoros.value) > parseInt(newValue)) {
-    currentPomodorosError.value = 'Current cannot be greater than Estimated.'
-  } else if (!isEditing.value) {
-    // Clear error if not editing and values are valid
-    currentPomodorosError.value = ''
-  }
-})
 </script>
 
 <template>
-  <li class="flex justify-between items-center bg-sage px-3 py-1 rounded">
-    <div v-if="!isEditing">
-      <div>{{ taskName }}</div>
-    </div>
+  <li
+    class="flex justify-between items-center bg-sage px-3 py-3 rounded"
+    :class="{'border-2 border-khaki': isActive}"
+    @click="handleClick"
+  >
+  <div v-if="!isEditing">
+  <i v-if="isActive" class="pi pi-star-fill"></i>
+  <span :class="{ 'line-through text-khaki': currentPomodoros > estPomodoros }">
+    {{ taskName }}
+  </span>
+</div>
+
+
 
     <div v-else class="flex items-center gap-2 w-full">
       <div class="flex flex-col gap-1 w-full">
@@ -128,7 +129,7 @@ watch(estPomodoros, (newValue) => {
 
     <div v-if="!isEditing" class="flex gap-2 ml-4 items-center">
       <div class="text-sm text-gray-600">{{ currentPomodoros }} / {{ estPomodoros }}</div>
-      <button @click="startEdit" class="text-khaki">
+      <button @click.stop="startEdit" class="text-khaki">
         <i class="pi pi-pencil"></i>
       </button>
       <button @click="deleteTask" class="text-red-800">

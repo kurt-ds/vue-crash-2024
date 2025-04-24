@@ -9,7 +9,15 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['start-editing', 'cancel-editing', 'save-editing', 'delete-task'])
+const emit = defineEmits([
+  'start-editing',
+  'cancel-editing',
+  'save-editing',
+  'delete-task',
+  'set-active-task' // 👈 Add this line
+])
+
+
 </script>
 
 <template>
@@ -23,6 +31,7 @@ const emit = defineEmits(['start-editing', 'cancel-editing', 'save-editing', 'de
       @cancel-editing="$emit('cancel-editing', $event)"
       @save-editing="(payload) => $emit('save-editing', payload)"
       @delete-task="(index) => $emit('delete-task', index)"
+      @click="$emit('set-active-task', index)"
     />
   </ul>
 </template>
