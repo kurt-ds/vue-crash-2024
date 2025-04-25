@@ -106,7 +106,7 @@ watch(
   <div class="flex flex-col gap-5">
     <PomodoroTimer @pomodoro-complete="handlePomodoroComplete" />
     <div
-      class="flex flex-col gap-2 w-full min-h-50 p-3 shadow-2xl rounded-2xl bg-cream max-h-[80vh] overflow-hidden"
+      class="flex flex-col gap-2 w-full min-h-50 p-4 shadow-2xl rounded-2xl bg-cream max-h-[80vh] overflow-hidden"
     >
       <HeaderSection @toggle-add-task-form="toggleAddTaskForm" />
 
