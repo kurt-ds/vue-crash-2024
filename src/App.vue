@@ -4,6 +4,7 @@ import PomodoroTimer from './components/PomodoroTimer.vue'
 import HeaderSection from './components/HeaderSection.vue'
 import AddTaskForm from './components/AddTaskForm.vue'
 import TaskList from './components/TaskList.vue'
+import ClearTasksButton from './components/ClearTasksButton.vue'
 
 const tasks = ref([])
 const isAddTaskFormOpen = ref(false)
@@ -73,6 +74,13 @@ const setActiveTask = (index) => {
   })
 }
 
+const deleteAllTasks = () => {
+  console.log('DELETING TASK')
+  if (confirm('Are you sure you want to delete all the tasks?')) {
+    tasks.value = []
+  }
+}
+
 onMounted(() => {
   const saved = localStorage.getItem('tasks')
   if (saved) {
@@ -115,6 +123,8 @@ watch(
           @toggle-done="handleTaskToggleDone"
         />
       </div>
+
+      <ClearTasksButton @clear-tasks="deleteAllTasks" />
     </div>
   </div>
 </template>
