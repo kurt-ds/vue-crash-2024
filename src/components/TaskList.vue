@@ -14,10 +14,9 @@ const emit = defineEmits([
   'cancel-editing',
   'save-editing',
   'delete-task',
-  'set-active-task' // 👈 Add this line
+  'set-active-task',
+  'toggle-done', // ✅ Add this!
 ])
-
-
 </script>
 
 <template>
@@ -32,6 +31,7 @@ const emit = defineEmits([
       @save-editing="(payload) => $emit('save-editing', payload)"
       @delete-task="(index) => $emit('delete-task', index)"
       @click="$emit('set-active-task', index)"
+      @toggle-done="(index) => $emit('toggle-done', index)"
     />
   </ul>
 </template>

@@ -12,25 +12,47 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['start-editing', 'cancel-editing', 'save-editing', 'delete-task', 'set-active-task'])
+const emit = defineEmits([
+  'start-editing',
+  'cancel-editing',
+  'save-editing',
+  'delete-task',
+  'set-active-task',
+  'toggle-done', // New event
+])
 
 const isEditing = ref(props.task.isEditing)
 const taskName = ref(props.task.name)
 const estPomodoros = ref(props.task.estPomodoros)
 const currentPomodoros = ref(props.task.currentPomodoros)
-const isActive = ref(props.task.isActive)  // Local state for active task
+const isActive = ref(props.task.isActive) // Local state for active task
+const isDone = ref(props.task.isDone)
 const originalTask = ref({ ...props.task })
 const currentPomodorosError = ref('')
 
-watch(() => props.task.isActive, (newIsActive) => {
-  // Update local `isActive` state when prop changes
-  isActive.value = newIsActive
-})
+watch(
+  () => props.task.isActive,
+  (newIsActive) => {
+    // Update local `isActive` state when prop changes
+    isActive.value = newIsActive
+  },
+)
 
+watch(
+  () => props.task.isDone,
+  (newIsDone) => {
+    // Update local `isActive` state when prop changes
+    isDone.value = newIsDone
+  },
+)
 const startEdit = () => {
   originalTask.value = { ...props.task }
   isEditing.value = true
   emit('start-editing', props.task)
+}
+
+const toggleDone = () => {
+  emit('toggle-done', props.index)
 }
 
 const cancelEdit = () => {
@@ -64,32 +86,43 @@ const deleteTask = () => {
 }
 
 const handleClick = () => {
-  emit('set-active-task', props.index)  // Emit the index when task is clicked
+  emit('set-active-task', props.index) // Emit the index when task is clicked
 }
 
-watch(() => props.task, (newTask) => {
-  taskName.value = newTask.name
-  estPomodoros.value = newTask.estPomodoros
-  currentPomodoros.value = newTask.currentPomodoros
-  isActive.value = newTask.isActive
-}, { deep: true })
-
+watch(
+  () => props.task,
+  (newTask) => {
+    taskName.value = newTask.name
+    estPomodoros.value = newTask.estPomodoros
+    currentPomodoros.value = newTask.currentPomodoros
+    isActive.value = newTask.isActive
+    isDone.value = newTask.isDone
+  },
+  { deep: true },
+)
 </script>
 
 <template>
   <li
     class="flex justify-between items-center bg-sage px-3 py-3 rounded"
-    :class="{'border-2 border-khaki': isActive}"
+    :class="{ 'border-2 border-khaki': isActive }"
     @click="handleClick"
   >
-  <div v-if="!isEditing">
-  <i v-if="isActive" class="pi pi-star-fill"></i>
-  <span :class="{ 'line-through text-khaki': currentPomodoros > estPomodoros }">
-    {{ taskName }}
-  </span>
-</div>
-
-
+    <div v-if="!isEditing" class="flex justify-center items-center gap-2">
+      <!-- Toggle Done Button -->
+      <button
+        @click.stop="toggleDone"
+        :title="isDone ? 'Mark as Undone' : 'Mark as Done'"
+        class="cursor-pointer"
+      >
+        <i :class="isDone ? 'pi pi-circle-on ' : 'pi pi-circle-off'" class="text-khaki"></i>
+      </button>
+      <div>
+        <span :class="{ 'line-through text-khaki': isDone }">
+          {{ taskName }}
+        </span>
+      </div>
+    </div>
 
     <div v-else class="flex items-center gap-2 w-full">
       <div class="flex flex-col gap-1 w-full">
@@ -102,7 +135,7 @@ watch(() => props.task, (newTask) => {
           <input
             type="number"
             v-model="currentPomodoros"
-            class="border border-gray-400 rounded px-2 py-1 w-1/2"
+            class="border border-gray-400 rounded px-2 py-1 w-10"
             placeholder="Done Pomodoros"
             min="0"
           />
@@ -110,7 +143,7 @@ watch(() => props.task, (newTask) => {
           <input
             type="number"
             v-model="estPomodoros"
-            class="border border-gray-400 rounded px-2 py-1 w-1/2"
+            class="border border-gray-400 rounded px-2 py-1 w-10"
             placeholder="Est. Pomodoros"
             min="0"
           />
